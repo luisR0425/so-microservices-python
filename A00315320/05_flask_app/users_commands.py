@@ -11,7 +11,7 @@ def add_user(username,password):
   return True if username in get_all_users() else False
 
 def remove_user(username):
-  vip = ["operativos","jenkins","postgres","root","python"]
+  vip = ["operativos","jenkins","postgres","root","Daniel"]
   if username in vip:
     return True
   else:
@@ -19,17 +19,24 @@ def remove_user(username):
     remove_process.wait()
     return False if username in get_all_users() else True
 
-#grep /bin/bash /etc/passwd | awk -F ':' ' {print $1}'
+def get_data_user(username):
+ if username in get_all_users():
+  grep = Popen(["grep", username, "/etc/passwd"], stdout=PIPE, stderr=PIPE)
+  usuario = grep.communicate()[0]
+  return usuario
+ else:
+  return False
 
-# # visudo
-# ser_Alias RESTUSERS = operativos
-# Cmnd_Alias MANAGEUSERS = /usr/sbin/adduser, /usr/sbin/userdel, /usr/bin/passwd
-# RESTUSERS    ALL=NOPASSWD: MANAGEUSERS
+def recently_logged():
+  grep_process = Popen(["lastlog","-t","1"], stdout=PIPE, stderr=PIPE)
+  user_list = Popen(["awk",'-F',' ','{print $1}'], stdin=grep_process.stdout, stdout=PIPE, stderr=PIPE).communicate()[0].split('\n')
+  return filter(None,user_list)
 
-#bash
-# $?
-
-# {
-# 	"username": "icesi",
-# 	"password": "icesi"
-# }
+def commands(username):
+   
+  if username in get_all_users():
+   grep_process = Popen(["cat","/home/"+username+"/.bash_history"], stdout=PIPE, stderr=PIPE)
+   user_list = Popen(["awk",'{print $1}'], stdin=grep_process.stdout, stdout=PIPE, stderr=PIPE).communicate()[0].split('\n')
+   return filter(None,user_list)
+  else:
+   return False
